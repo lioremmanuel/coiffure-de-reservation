@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Réservation Coiffure</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script type="text/javascript">
+    (function(){
+      emailjs.init("TON_USER_ID"); // Remplace par ton ID utilisateur EmailJS
+    })();
+
+    function calculerPrix() {
+      const coupe = parseFloat(document.getElementById("coupe").value);
+      const longueur = parseFloat(document.getElementById("longueur").value);
+      const extra = parseFloat(document.getElementById("extra").value);
+      const meches = document.getElementById("meches").checked;
+      const typeMeches = meches ? parseFloat(document.getElementById("typeMeches").value) : 0;
+      const couleurMeches = meches ? parseFloat(document.getElementById("couleurMeches").value) : 0;
+      const dateRDV = new Date(document.getElementById("dateRDV").value);
+      const aujourdhui = new Date();
+      const diffJours = Math.ceil((dateRDV - aujourdhui) / (1000 * 60 * 60 * 24));
+
+      let prix = coupe + longueur + extra + typeMeches + couleurMeches;
+      if (diffJours <= 3) prix *= 0.8;
+      else if (diffJours <= 7) prix *= 0.9;
+
+      document.getElementById("prixTotal").innerText = `Prix total estimé: ${prix.toFixed(2)}$`;
+    }
+
+    function envoyerEmail(event) {
+      event.preventDefault();
+      const form = document.getElementById("bookingForm");
+      const prix = document.getElementById("prixTotal").innerText;
+
+      const templateParams = {
+        email: document.getElementById("email").value,
+        coupe: document.getElementById("coupe").value,
+        longueur: document.getElementById("longueur").value,
+        extra: document.getElementById("extra").value,
+        meches: document.getElementById("meches").checked ? "Oui" : "Non",
+        typeMeches: document.getElementById("typeMeches").value,
+        couleurMeches: document.getElementById("couleurMeches").value,
+        dateRDV: document.getElementById("dateRDV").value,
+        prixTotal: prix
+      };
+
+      emailjs.send("TON_SERVICE_ID", "TON_TEMPLATE_ID", templateParams)
+        .then(() => {
+          alert("Demande envoyée avec succès !");
+          form.reset();
+          document.getElementById("prixTotal").innerText = "Prix total estimé: 0$";
+        }, (error) => {
+          alert("Erreur lors de l'envoi: " + JSON.stringify(error));
+        });
+    }
+  </script>
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-2xl mx-auto bg-white p-6 rounded shadow">
+    <img src="https://images.unsplash.com/photo-1592841601624-7e06ee3ff2a8" alt="Coiffure" class="rounded mb-6 w-full h-64 object-cover">
+    <h1 class="text-2xl font-bold mb-4 text-center">Réservez votre coupe</h1>
+    <form id="bookingForm" oninput="calculerPrix()" onsubmit="envoyerEmail(event)">
+      <label class="block mb-2">Votre courriel:</label>
+      <input type="email" id="email" name="email" required class="w-full mb-4 p-2 border rounded" placeholder="exemple@mail.com">
+
+      <label class="block mb-2">Coupe de cheveux:</label>
+      <select id="coupe" class="w-full mb-4 p-2 border rounded">
+        <option value="120">Dégradé - 120$</option>
+        <option value="100">Tresse simple - 100$</option>
+        <option value="130">Coupe afro - 130$</option>
+        <option value="110">Vanilles - 110$</option>
+        <option value="140">Nattes collées - 140$</option>
+        <option value="150">Twist - 150$</option>
+        <option value="160">Locks - 160$</option>
+      </select>
+
+      <label class="block mb-2">Longueur:</label>
+      <select id="longueur" class="w-full mb-4 p-2 border rounded">
+        <option value="0">Courte - 0$</option>
+        <option value="10">Moyenne - 10$</option>
+        <option value="20">Longue - 20$</option>
+      </select>
+
+      <label class="block mb-2">Service supplémentaire:</label>
+      <select id="extra" class="w-full mb-4 p-2 border rounded">
+        <option value="0">Aucun</option>
+        <option value="25">Soin capillaire - 25$</option>
+        <option value="30">Coloration rapide - 30$</option>
+      </select>
+
+      <label class="flex items-center mb-2">
+        <input type="checkbox" id="meches" class="mr-2" onchange="document.getElementById('mechesOptions').style.display = this.checked ? 'block' : 'none';"> Ajouter des mèches
+      </label>
+
+      <div id="mechesOptions" class="mb-4" style="display: none;">
+        <label class="block">Type de mèches:</label>
+        <select id="typeMeches" class="w-full mb-2 p-2 border rounded">
+          <option value="30">Mèches fines - 30$</option>
+          <option value="40">Mèches épaisses - 40$</option>
+        </select>
+
+        <label class="block">Couleur de mèches:</label>
+        <select id="couleurMeches" class="w-full mb-2 p-2 border rounded">
+          <option value="20">Blondes - 20$</option>
+          <option value="15">Brunes - 15$</option>
+        </select>
+      </div>
+
+      <label class="block mb-2">Date du rendez-vous:</label>
+      <input type="date" id="dateRDV" class="w-full mb-4 p-2 border rounded">
+
+      <p id="prixTotal" class="text-lg font-semibold">Prix total estimé: 0$</p>
+
+      <button type="submit" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Envoyer la demande</button>
+    </form>
+  </div>
+</body>
+</html>
