@@ -1,0 +1,11 @@
+/* Si tu veux ajouter du CSS personnalisé */
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+/* Par exemple : */
+input:focus, select:focus {
+    outline: none;
+    border-color: #3b82f6; /* Bleu Tailwind */
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
